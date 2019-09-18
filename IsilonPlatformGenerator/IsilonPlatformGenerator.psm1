@@ -223,7 +223,7 @@ function New-isiAPIdirectory{
 
     Begin{
         #import item inforamtion from dictionary
-        $dictionary_item = Import-Csv -Path $dictionary -Delimiter ';' | where directory -eq $item
+        $dictionary_item = Import-Csv -Path $dictionary -Delimiter ';' | Where-Object directory -eq $item
 
         if (!$dictionary_item){
             Write-Host "$item not in CSV" -ForegroundColor Red
@@ -253,8 +253,8 @@ function New-isiAPIdirectory{
 
         # get api information
         $api = $dictionary_item.api_version -as [int]
-        $api_versions = (Import-Csv -Path $dictionary -Delimiter ';' | where directory_noapi -eq $item.Substring(2)).api_version
-        $api_highest = ($api_versions | measure -Maximum).Maximum
+        $api_versions = (Import-Csv -Path $dictionary -Delimiter ';' | Where-Object directory_noapi -eq $item.Substring(2)).api_version
+        $api_highest = ($api_versions | Measure-Object -Maximum).Maximum
         $api_count = $api_versions.Count
         
         # add the api version to function if there are multiple api versions for directory
@@ -577,6 +577,7 @@ function New-isiAPIdirectory{
 
                 # channel bug
                 if ( $i -eq  'channel`'){
+                    write-host "Channel bug [${i}]" ## William Brown
                     $i = 'channel'
                 }
 
@@ -751,7 +752,7 @@ function Test-isiAPI{
     [switch]$wait,
     [switch]$silent
     )
-    foreach ($exported_command in ((Get-Module -Name $module).ExportedCommands.Values | select name)) {
+    foreach ($exported_command in ((Get-Module -Name $module).ExportedCommands.Values | Select-Object name)) {
         
         if ($skip -contains $exported_command.name) {
             Write-Host -NoNewLine "Skipping $($exported_command.name)`n" -foreground "red"
@@ -811,7 +812,7 @@ function New-isiAPICSV{
                 continue
             }#>
             if ($dictionary) {
-                $dictionary_item = $dictionary | where directory -eq $item
+                $dictionary_item = $dictionary | Where-Object directory -eq $item
                 if (!$dictionary_item) {
                     New-isiAPIdirectoryCSV -item $item -file $file
                     Write-Host "$item not in existing csv - adding"
